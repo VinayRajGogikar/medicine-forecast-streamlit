@@ -99,6 +99,38 @@ if page == "Dashboard Overview":
 elif page == "Forecasting by Year":
     st.title("Medicine Forecasting by Year")
 
+    # 1) Find medicines that have BOTH Actual and Forecast
+    type_counts = (
+        afc.groupby("Medicine")["Type"]
+        .nunique()
+        .reset_index()
+    )
+
+    # only keep meds with at least 2 different types (Actual + Forecast)
+    valid_meds = type_counts[type_counts["Type"] >= 2]["Medicine"]
+    med_list = sorted(valid_meds.dropna().unique())
+
+    # 2) Sidebar dropdown – only these medicines appear
+    selected_medicine = st.sidebar.selectbox("Select Medicine", med_list)
+
+    # 3) Filter data for the selected medicine
+    df_med = afc[afc["Medicine"] == selected_medicine].copy()
+    df_med = df_med.sort_values("Year")
+
+    st.markdown(f"### Actual vs Forecast for: **{selected_medicine}**")
+
+    # 4) Plot – give this chart a UNIQUE key to avoid DuplicateElementId
+    fig = px.bar(
+        df_med,
+        x="Year",
+        y="Value",
+        color="Type",      # should show Actual and Forecast
+        barmode="group",
+        labels={"Value": "Actual and Forecast Value"},
+    )
+    st.plotly_chart(fig, use_container_width=True, key="forecast_by_year_chart")
+
+
     # 🔹 1. Find medicines that have BOTH Actual and Forecast values
     type_counts = (
         afc.groupby("Medicine")["Type"]
