@@ -197,22 +197,47 @@ elif page == "Executive Summary":
 
     left, right = st.columns(2)
 
-    if has_total_cost:
-        cost_group = (
-            meds.groupby("DESCRIPTION", as_index=False)["TOTALCOST"]
+ if has_total_cost:
+
+    # --- Top Costliest Medicines (Top 10, clean layout) ---
+    cost_by_med = (
+        med.groupby("DESCRIPTION", as_index=False)["TOTALCOST"]
             .sum()
-            .sort_values("TOTALCOST", ascending=False)
-            .head(10)
-        )
-        fig_cost = px.bar(
-            cost_group,
-            x="TOTALCOST",
-            y="DESCRIPTION",
-            orientation="h",
-            labels={"TOTALCOST": "Total Cost", "DESCRIPTION": "Medicine"},
-        )
-        left.markdown("#### Top Costliest Medicines")
-        left.plotly_chart(fig_cost, use_container_width=True)
+    )
+
+    top10_cost = (
+        cost_by_med
+        .sort_values("TOTALCOST", ascending=False)
+        .head(10)
+    )
+
+    fig_top = px.bar(
+        top10_cost,
+        x="TOTALCOST",
+        y="DESCRIPTION",
+        orientation="h",
+        text="TOTALCOST",
+        labels={
+            "TOTALCOST": "Total Cost of Medicine",
+            "DESCRIPTION": "Medicine"
+        }
+    )
+
+    fig_top.update_layout(
+        height=500,
+        margin=dict(l=10, r=10, t=30, b=10),
+        yaxis=dict(categoryorder="total ascending"),
+        showlegend=False
+    )
+
+    fig_top.update_traces(
+        texttemplate="%{text:,.0f}",
+        textposition="outside"
+    )
+
+    left.markdown("### Top Costliest Medicines")
+    left.plotly_chart(fig_top, use_container_width=True)
+
 
     if has_encounterclass:
         dept_summary = (
