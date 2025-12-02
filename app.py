@@ -176,9 +176,6 @@ elif page == "Department Usage":
     else:
         st.info("ENCOUNTERCLASS column not found in medication_summary.csv")
 
-# =========================================================
-# PAGE 4: EXECUTIVE SUMMARY
-# =========================================================
 # -------------------------------------------
 # PAGE 4: EXECUTIVE SUMMARY
 # -------------------------------------------
