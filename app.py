@@ -180,12 +180,12 @@ elif page == "Department Usage":
 # PAGE 4: EXECUTIVE SUMMARY
 # -------------------------------------------
 elif page == "Executive Summary":
-    st.header("Executive Summary Dashboard")
+    st.title("Executive Summary Dashboard")
     st.subheader("Key Insights from Medicine Inventory and Usage Analysis")
 
-    total_dispenses = med["DISPENSES"].sum()
-    unique_meds = med["DESCRIPTION"].nunique()
-    total_cost = med["TOTALCOST"].sum() if "TOTALCOST" in med.columns else None
+    total_dispenses = meds["DISPENSES"].sum()
+    unique_meds = meds["DESCRIPTION"].nunique()
+    total_cost = meds["TOTALCOST"].sum() if has_total_cost else None
 
     c1, c2, c3 = st.columns(3)
     c1.metric("Total Medicines Dispensed", f"{int(total_dispenses):,}")
@@ -195,30 +195,39 @@ elif page == "Executive Summary":
     else:
         c3.metric("Total Cost of Medicines", "N/A")
 
-    st.markdown("### Top Costliest Medicines")
-    
-    if total_cost is not None:
-        cost_group = (
-            med.groupby("DESCRIPTION", as_index=False)["TOTALCOST"]
-               .sum()
-               .sort_values("TOTALCOST", ascending=False)
-               .head(10)
-        )
+    left, right = st.columns(2)
 
-        fig_top = px.bar(
+    if has_total_cost:
+        cost_group = (
+            meds.groupby("DESCRIPTION", as_index=False)["TOTALCOST"]
+            .sum()
+            .sort_values("TOTALCOST", ascending=False)
+            .head(10)
+        )
+        fig_cost = px.bar(
             cost_group,
             x="TOTALCOST",
             y="DESCRIPTION",
             orientation="h",
-            title="Top 10 Costliest Medicines",
-            labels={"TOTALCOST": "Total Cost", "DESCRIPTION": "Medicine"}
+            labels={"TOTALCOST": "Total Cost", "DESCRIPTION": "Medicine"},
         )
+        left.markdown("#### Top Costliest Medicines")
+        left.plotly_chart(fig_cost, use_container_width=True)
 
-        fig_top.update_layout(height=500)
-        fig_top.update_traces(marker_color="#1f77b4")
-
-        st.plotly_chart(fig_top, use_container_width=True)
-
+    if has_encounterclass:
+        dept_summary = (
+            meds.groupby("ENCOUNTERCLASS", as_index=False)["DISPENSES"]
+            .sum()
+            .sort_values("DISPENSES", ascending=False)
+        )
+        fig_dept = px.bar(
+            dept_summary,
+            x="ENCOUNTERCLASS",
+            y="DISPENSES",
+            labels={"ENCOUNTERCLASS": "Encounter Type", "DISPENSES": "Total Dispenses"},
+        )
+        right.markdown("#### Medicine Usage by Department")
+        right.plotly_chart(fig_dept, use_container_width=True)
 
     st.markdown("### Narrative Insights")
     st.write(
