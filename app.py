@@ -130,6 +130,7 @@ elif page == "Forecasting by Year":
         y="Value",
         color="Type",  # Actual vs Forecast
         barmode="group",
+        category_orders={"Type": ["Actual", "Forecast"]},
         labels={"Value": "Actual and Forecast Value"},
     )
 
