@@ -197,62 +197,28 @@ elif page == "Executive Summary":
 
     left, right = st.columns(2)
 
- if has_total_cost:
+ # --- Top 10 Costliest Medicines ---
+if has_total_cost:
 
-    # --- Top Costliest Medicines (Top 10, clean layout) ---
-    cost_by_med = (
+    cost_group = (
         med.groupby("DESCRIPTION", as_index=False)["TOTALCOST"]
             .sum()
+            .sort_values("TOTALCOST", ascending=False)
+            .head(10)
     )
 
-    top10_cost = (
-        cost_by_med
-        .sort_values("TOTALCOST", ascending=False)
-        .head(10)
-    )
-
-    fig_top = px.bar(
-        top10_cost,
+    fig_cost = px.bar(
+        cost_group,
         x="TOTALCOST",
         y="DESCRIPTION",
         orientation="h",
-        text="TOTALCOST",
-        labels={
-            "TOTALCOST": "Total Cost of Medicine",
-            "DESCRIPTION": "Medicine"
-        }
+        title="Top 10 Costliest Medicines",
+        labels={"TOTALCOST": "Total Cost", "DESCRIPTION": "Medicine"},
+        height=500
     )
 
-    fig_top.update_layout(
-        height=500,
-        margin=dict(l=10, r=10, t=30, b=10),
-        yaxis=dict(categoryorder="total ascending"),
-        showlegend=False
-    )
+    left.plotly_chart(fig_cost, use_container_width=True)
 
-    fig_top.update_traces(
-        texttemplate="%{text:,.0f}",
-        textposition="outside"
-    )
-
-    left.markdown("### Top Costliest Medicines")
-    left.plotly_chart(fig_top, use_container_width=True)
-
-
-    if has_encounterclass:
-        dept_summary = (
-            meds.groupby("ENCOUNTERCLASS", as_index=False)["DISPENSES"]
-            .sum()
-            .sort_values("DISPENSES", ascending=False)
-        )
-        fig_dept = px.bar(
-            dept_summary,
-            x="ENCOUNTERCLASS",
-            y="DISPENSES",
-            labels={"ENCOUNTERCLASS": "Encounter Type", "DISPENSES": "Total Dispenses"},
-        )
-        right.markdown("#### Medicine Usage by Department")
-        right.plotly_chart(fig_dept, use_container_width=True)
 
     st.markdown("### Narrative Insights")
     st.write(
