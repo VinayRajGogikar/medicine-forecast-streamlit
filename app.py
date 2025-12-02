@@ -131,6 +131,10 @@ elif page == "Forecasting by Year":
         color="Type",  # Actual vs Forecast
         barmode="group",
         category_orders={"Type": ["Actual", "Forecast"]},
+        color_discrete_map={
+    "Actual": "#8EC9FF",     # light blue
+    "Forecast": "#005BBB"    # dark blue
+},
         labels={"Value": "Actual and Forecast Value"},
     )
 
