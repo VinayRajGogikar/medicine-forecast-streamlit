@@ -19,9 +19,15 @@ def load_data():
         meds["Month"] = pd.to_datetime(meds["Month"], errors="coerce")
         meds["Year"] = meds["Month"].dt.year
 
+        # 🔹 Keep only 2020–2025 in medication summary
+        meds = meds[(meds["Year"] >= 2020) & (meds["Year"] <= 2025)]
+
     # Ensure Year is numeric in afc
     if "Year" in afc.columns:
         afc["Year"] = pd.to_numeric(afc["Year"], errors="coerce")
+
+        # 🔹 Keep only 2020–2025 in Actual/Forecast combined
+        afc = afc[(afc["Year"] >= 2020) & (afc["Year"] <= 2025)]
 
     return meds, afc
 
